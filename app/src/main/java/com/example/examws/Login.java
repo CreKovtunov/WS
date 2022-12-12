@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Notification;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -28,6 +29,10 @@ public class Login extends AppCompatActivity {
 
         email = findViewById(R.id.editTextTextEmailAddress);
         password = findViewById(R.id.editTextTextPassword);
+
+        if(getLogin().length() > 1) {
+            email.setText(getLogin());
+        }
 
         findViewById(R.id.sign_in_login).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,6 +61,7 @@ public class Login extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful()) {
                     Intent intent1 = new Intent(Login.this, Main.class);
+                    saveLoginInfo(loginModel.getEmail(), loginModel.getPassword());
                     startActivity(intent1);
                 } else
                     Toast.makeText(Login.this, "Данные введены неверно", Toast.LENGTH_SHORT).show();
@@ -66,5 +72,16 @@ public class Login extends AppCompatActivity {
                 Toast.makeText(Login.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void saveLoginInfo (String email, String password){
+        SharedPreferences prefs = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        SharedPreferences.Editor prefEdit = prefs.edit();
+        prefEdit.putString("login", email);
+        prefEdit.putString("pass", password);
+        prefEdit.apply();
+    }
+
+    private String getLogin() {
+        return getSharedPreferences("loginInfo",MODE_PRIVATE).getString("login", "");
     }
 }
